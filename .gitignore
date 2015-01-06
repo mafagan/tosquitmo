@@ -1,6 +1,7 @@
 # dir
 test
 .DS_Store
+*.pyc
 
 # Object files
 *.o
