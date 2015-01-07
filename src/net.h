@@ -2,6 +2,11 @@
 #define _NET_H_
 
 #include <netinet/in.h>
+#include <ev.h>
+
+typedef struct{
+    ev_io w;
+}session_t;
 
 void setnonblock(int fd);
 void setreuseaddr(int fd);
