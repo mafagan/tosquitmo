@@ -12,5 +12,6 @@ void setnonblock(int fd);
 void setreuseaddr(int fd);
 void setaddress(const char *ip, int port, struct sockaddr_in *addr);
 int new_tcp_listensock();
+void net_init(struct ev_loop *reactor, int listenfd);
 
 #endif

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -O2 -g
+CFLAGS = -O2 -g
 LIBS = -lev -lpthread
 OBJS = database.o memory_pool.o signal_handle.o \
 	   net_read_handle.o tosquitmo.o net.o config.o \
