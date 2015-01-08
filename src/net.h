@@ -4,8 +4,9 @@
 #include <netinet/in.h>
 #include <ev.h>
 
-typedef struct{
+typedef struct session{
     ev_io w;
+    struct session *next_session;
 }session_t;
 
 void setnonblock(int fd);

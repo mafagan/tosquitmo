@@ -7,5 +7,5 @@ typedef struct config{
     short thread_num;
 } config_t;
 
-void config_init();
+void config_init(data_t *pdata);
 #endif

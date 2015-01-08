@@ -1,11 +1,13 @@
+
+#include <stdlib.h>
+
+#include "tosquitmo.h"
 #include "config.h"
 
-config_t config;
-
-void config_init()
+void config_init(data_t *pdata)
 {
     //TODO
-
-    config.listenport = 1688;
-    config.thread_num = 2;
+    pdata->config = (config_t*)malloc(sizeof(config_t));
+    pdata->config->listenport = 1688;
+    pdata->config->thread_num = 2;
 }
