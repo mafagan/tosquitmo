@@ -1,14 +1,15 @@
 CC = gcc
-CFLAGS = -O2 -g
-LIBS = -lev
+CFLAGS = -Wall -O2 -g
+LIBS = -lev -lpthread
 OBJS = database.o memory_pool.o signal_handle.o \
-	   net_read_handle.o tosquitmo.o net.o config.o
+	   net_read_handle.o tosquitmo.o net.o config.o \
+	   thread_pool.o
 
 tosquitmo: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LIBS)
 	mv tosquitmo ../bin/
 
-tosquitmo.o: tosquitmo.c
+tosquitmo.o: tosquitmo.c tosquitmo.h
 	$(CC) $(CFLAGS) -c $< -o $@ $(LIBS)
 
 config.o: config.c config.h
@@ -27,6 +28,9 @@ memory_pool.o: memory_pool.c memory_pool.h
 	$(CC) $(CFLAGS) -c $< -o $@ $(LIBS)
 
 database.o: database.c database.h
+	$(CC) $(CFLAGS) -c $< -o $@ $(LIBS)
+
+thread_pool.o: thread_pool.c thread_pool.h
 	$(CC) $(CFLAGS) -c $< -o $@ $(LIBS)
 
 .PHONY: clean
