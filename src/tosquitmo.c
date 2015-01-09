@@ -13,13 +13,11 @@
 #include "tosquitmo.h"
 #include "thread_pool.h"
 
-extern config_t config;
-
 static void data_init(data_t *pdata)
 {
 
     pdata->session_head = NULL;
-    pdata->global_data = NULL;
+    pdata->config = NULL;
     pdata->reactor = EV_DEFAULT;
 }
 
@@ -33,17 +31,14 @@ int main(int argv, char **argc)
     data_t pdata;
     data_init(&pdata);
     config_init(&pdata);
-    memory_pool_init();
-    pthread_t *threads = (pthread_t*)talloc(config.thread_num*sizeof(pthread_t));
-    thread_pool_init(threads, config.thread_num);
+    memory_pool_init(&pdata);
+    thread_pool_init(&pdata);
 
-    global_data->listenfd = new_tcp_listensock();
+    net_init(&pdata);
+    signal_init(&pdata);
+    ev_run(pdata.reactor, 0);
 
-    net_init(global_data->reactor, global_data->listenfd);
-    signal_init(reactor);
-    ev_run(reactor, 0);
-
-    thread_pool_destroy(threads, config.thread_num);
+    thread_pool_destroy(&pdata);
     data_destroy();
     return 0;
 }

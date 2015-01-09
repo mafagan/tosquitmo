@@ -14,8 +14,8 @@
 #include "config.h"
 #include "net_read_handle.h"
 #include "memory_pool.h"
+#include "tosquitmo.h"
 
-extern config_t config;
 
 void setnonblock(int fd)
 {
@@ -36,7 +36,7 @@ void setaddress(const char *ip, int port, struct sockaddr_in *addr)
     addr->sin_port = htons(port);
 }
 
-int new_tcp_listensock()
+int new_tcp_listensock(data_t *pdata)
 {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if(fd < 0x00){
@@ -47,7 +47,7 @@ int new_tcp_listensock()
     setnonblock(fd);
     setreuseaddr(fd);
     struct sockaddr_in addr;
-    setaddress("0.0.0.0", config.listenport, &addr);
+    setaddress("0.0.0.0", pdata->config->listenport, &addr);
     bind(fd, (struct sockaddr*)&addr, sizeof(addr));
     listen(fd, 10);
     return fd;
@@ -74,9 +74,10 @@ static void accept_handle(struct ev_loop *reactor, ev_io *w, int events)
 }
 
 
-void net_init(struct ev_loop *reactor, int listenfd)
+void net_init(data_t *pdata)
 {
+    pdata->listenfd = new_tcp_listensock(pdata);
     ev_io listensock;
-    ev_io_init(&listensock, accept_handle, listenfd, EV_READ);
-    ev_io_start(reactor, &listensock);
+    ev_io_init(&listensock, accept_handle, pdata->listenfd, EV_READ);
+    ev_io_start(pdata->reactor, &listensock);
 }

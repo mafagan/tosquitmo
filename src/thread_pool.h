@@ -3,8 +3,11 @@
 
 #include <pthread.h>
 
-void thread_pool_init(pthread_t *threads, int num);
-void thread_pool_destroy(pthread_t *threads, int num);
+#include "tosquitmo.h"
+#include "types.h"
+
+void thread_pool_init(data_t *pdata);
+void thread_pool_destroy(data_t *pdata);
 
 void* task_thread(void *threadid);
 

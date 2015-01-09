@@ -1,8 +1,7 @@
 #ifndef _DATABASE_H_
 #define _DATABASE_H_
 
-typedef struct{
-}subtree_t;
+#include "types.h"
 
 void db_init(subtree_t *tree);
 
