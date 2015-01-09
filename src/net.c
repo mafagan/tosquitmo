@@ -16,6 +16,7 @@
 #include "memory_pool.h"
 #include "tosquitmo.h"
 
+extern data_t pdata;
 
 void setnonblock(int fd)
 {
@@ -66,18 +67,34 @@ static void accept_handle(struct ev_loop *reactor, ev_io *w, int events)
 
     setnonblock(connfd);
 
-    session_t *new_session = (session_t*)talloc(sizeof(session_t));
+    session_t *n_session = new_session();
 
-    ev_io_init(&(new_session->w), socket_read_handle, connfd, EV_READ);
-    ev_io_start(reactor, &(new_session->w));
+    ev_io_init(&(n_session->w), socket_read_handle, connfd, EV_READ);
+    ev_io_start(reactor, &(n_session->w));
 
+}
+
+session_t* new_session()
+{
+    session_t *n_session = (session_t*)talloc(sizeof(session_t));
+    n_session->next_session = NULL;
+
+    if(pdata.session_head != NULL){
+        pdata.session_end->next_session = n_session;
+        pdata.session_end = pdata.session_end->next_session;
+    }else{
+        pdata.session_head = n_session;
+        pdata.session_end = n_session;
+    }
+    n_session->recv_length = 0;
+    return n_session;
 }
 
 
 void net_init(data_t *pdata)
 {
     pdata->listenfd = new_tcp_listensock(pdata);
-    ev_io listensock;
-    ev_io_init(&listensock, accept_handle, pdata->listenfd, EV_READ);
-    ev_io_start(pdata->reactor, &listensock);
+    session_t *t_session = new_session();
+    ev_io_init(&t_session->w, accept_handle, pdata->listenfd, EV_READ);
+    ev_io_start(pdata->reactor, &t_session->w);
 }

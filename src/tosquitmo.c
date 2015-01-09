@@ -13,12 +13,16 @@
 #include "tosquitmo.h"
 #include "thread_pool.h"
 
+
+data_t pdata;
+
 static void data_init(data_t *pdata)
 {
 
     pdata->session_head = NULL;
     pdata->config = NULL;
     pdata->reactor = EV_DEFAULT;
+    pdata->session_end = NULL;
 }
 
 static void data_destroy()
@@ -28,7 +32,6 @@ static void data_destroy()
 
 int main(int argv, char **argc)
 {
-    data_t pdata;
     data_init(&pdata);
     config_init(&pdata);
     memory_pool_init(&pdata);
