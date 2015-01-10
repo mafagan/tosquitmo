@@ -21,7 +21,12 @@
 #define DISCONNECT  14
 #define RESERVEDE   15
 
-#define HEADER_LENGTH   2
+#define HEADER  0
+#define REMAINING 1
+#define VARIABLE 2
+#define PAYLOAD 3
+
+#define MQTT_LENGTH_MAX_BYTE 4
 
 typedef struct{
 }subtree_t;
@@ -29,11 +34,16 @@ typedef struct{
 
 typedef struct session{
     ev_io w;
-    char head_buf[HEADER_LENGTH];
+    char *identifier;
+    char remain_bytes[4];
+    char remaining_read;
+    char header;
     char command;
+    char to_process;
     int recv_length;
     int remaining_length;
-    char *content;
+    char *variable;
+    char *payload;
     struct session *next_session;
 }session_t;
 

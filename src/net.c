@@ -87,9 +87,18 @@ session_t* new_session()
         pdata.session_end = n_session;
     }
     n_session->recv_length = 0;
+    n_session->to_process = HEADER;
+    n_session->variable = NULL;
+    n_session->payload = NULL;
+    n_session->remaining_read = 0;
     return n_session;
 }
 
+void remove_session(session_t *session)
+{
+
+    return;
+}
 
 void net_init(data_t *pdata)
 {
