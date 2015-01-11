@@ -13,7 +13,6 @@
 #include "tosquitmo.h"
 #include "thread_pool.h"
 
-
 data_t pdata;
 
 static void data_init(data_t *pdata)

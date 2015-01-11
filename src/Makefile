@@ -7,7 +7,7 @@ OBJS = database.o memory_pool.o signal_handle.o \
 
 tosquitmo: $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LIBS)
-	mv tosquitmo ../bin/
+	mv tosquitmo ../
 
 tosquitmo.o: tosquitmo.c tosquitmo.h
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -36,4 +36,4 @@ thread_pool.o: thread_pool.c thread_pool.h
 .PHONY: clean
 
 clean:
-	rm -rf $(OBJS) ../bin/*
+	rm -rf $(OBJS) ../tosquitmo
