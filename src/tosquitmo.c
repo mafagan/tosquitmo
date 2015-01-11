@@ -12,6 +12,7 @@
 #include "memory_pool.h"
 #include "tosquitmo.h"
 #include "thread_pool.h"
+#include "logging.h"
 
 data_t pdata;
 
@@ -35,9 +36,10 @@ int main(int argv, char **argc)
     config_init(&pdata);
     memory_pool_init(&pdata);
     thread_pool_init(&pdata);
-
     net_init(&pdata);
     signal_init(&pdata);
+    log_init();
+
     ev_run(pdata.reactor, 0);
 
     thread_pool_destroy(&pdata);

@@ -43,7 +43,7 @@ void logging(int priority, const char *fmt, ...)
 
     t = time(NULL);
     struct tm *local_time = localtime(&t);
-    strftime(buf+curlength, DATE_LEN+1, "[%Y-%m-%d %H:%M:%S] ", lt);
+    strftime(buf+curlength, DATE_LEN+1, "[%Y-%m-%d %H:%M:%S] ", local_time);
     curlength += (DATE_LEN+1);
 
     int trans_len;
