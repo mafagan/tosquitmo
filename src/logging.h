@@ -17,16 +17,16 @@ void logging(int priority, const char*, ...);
 void log_init();
 
 #define log_debug(fmt, args...)\
-    logging(LOGGING_DEBUG, fmt, args)
+    logging(LOGGING_DEBUG, fmt, ##args)
 
 #define log_info(fmt, args...)\
-    logging(LOGGING_INFO, fmt, args)
+    logging(LOGGING_INFO, fmt, ##args)
 
 #define log_warn(fmt, args...)\
-    logging(LOGGING_WARN, fmt, args)
+    logging(LOGGING_WARN, fmt, ##args)
 
 #define log_error(fmt, args...)\
-    logging(LOGGING_ERROR, fmt, args)
+    logging(LOGGING_ERROR, fmt, ##args)
 
 void log_init()
 {
@@ -68,7 +68,11 @@ void logging(int priority, const char *fmt, ...)
 
     buf[curlength] = '\0';
 
-    fprintf(stdout, "%s\n", buf);
+    if(priority & LOGGING_ERROR){
+        fprintf(stderr, "%s\n", buf);
+    }else{
+        fprintf(stdout, "%s\n", buf);
+    }
     return;
 }
 

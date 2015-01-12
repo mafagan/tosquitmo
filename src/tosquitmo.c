@@ -33,12 +33,15 @@ static void data_destroy()
 int main(int argv, char **argc)
 {
     data_init(&pdata);
+    log_error("hello");
     config_init(&pdata);
     memory_pool_init(&pdata);
     thread_pool_init(&pdata);
     net_init(&pdata);
     signal_init(&pdata);
     log_init();
+
+    log_debug("test %d", 1);
 
     ev_run(pdata.reactor, 0);
 
