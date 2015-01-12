@@ -7,6 +7,7 @@
 #include "net_read_handle.h"
 #include "net.h"
 #include "types.h"
+#include "logging.h"
 
 static int get_remaining_length(char *length_buf)
 {
@@ -19,15 +20,23 @@ static char get_command(char byte)
     //TODO
     return 0;
 }
+
+/*
+ * network data recive and mqtt data packet handle
+ *
+ **/
+
 void socket_read_handle(struct ev_loop *reactor, ev_io *w, int events)
 {
     session_t *s_session = (session_t*)w;
     char buf[256];
     if(s_session->recv_length == 0){
+
+        /* here is a brand new packet */
         int r_len = read(w->fd, &s_session->header, 1);
 
         if(r_len == 0){
-            //log error EOF
+            log_error("unexpected EOF");
             remove_session(s_session);
             return;
         }
@@ -38,11 +47,18 @@ void socket_read_handle(struct ev_loop *reactor, ev_io *w, int events)
     }
 
     if(s_session->to_process == REMAINING){
+
+        /*
+         * get "remaining" part in header, it may takes 1~4 bytes, and it has
+         * to read one by one.
+         *
+         */
+
         do{
             int r_len = read(w->fd, &s_session->remain_bytes[(int)s_session->remaining_read], 1);
 
             if(r_len == 0){
-                //log error EOF
+                log_error("unexpected EOF");
                 remove_session(s_session);
                 return;
             }
@@ -51,7 +67,7 @@ void socket_read_handle(struct ev_loop *reactor, ev_io *w, int events)
                 if(errno == EAGAIN || errno == EINTR){
                     return;
                 }else{
-                    //log error connect
+                    log_error("error connection");
                     remove_session(s_session);
                     return;
                 }
@@ -60,7 +76,7 @@ void socket_read_handle(struct ev_loop *reactor, ev_io *w, int events)
             s_session->remaining_read += 1;
             if((s_session->remain_bytes[s_session->remaining_read-1] & 128) > 0){
                 if( s_session->remaining_read >= MQTT_LENGTH_MAX_BYTE){
-                    //log error protocol
+                    log_error("protocol error");
                     remove_session(s_session);
                     return;
                 }
