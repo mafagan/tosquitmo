@@ -31,7 +31,7 @@ static void data_destroy()
     return;
 }
 
-int main(int argv, char **argc)
+int main(void)
 {
     data_init(&pdata);
     config_init(&pdata);

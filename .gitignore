@@ -3,6 +3,7 @@ test
 .DS_Store
 *.pyc
 tosquitmo
+*ycm_extra_conf*
 
 # Object files
 *.o
