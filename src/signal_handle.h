@@ -8,5 +8,4 @@
 #include "tosquitmo.h"
 #include "types.h"
 void signal_init(data_t *pdata);
-
 #endif

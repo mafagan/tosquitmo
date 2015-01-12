@@ -23,6 +23,7 @@ static void data_init(data_t *pdata)
     pdata->config = NULL;
     pdata->reactor = EV_DEFAULT;
     pdata->session_end = NULL;
+    pdata->threads = NULL;
 }
 
 static void data_destroy()
@@ -33,15 +34,18 @@ static void data_destroy()
 int main(int argv, char **argc)
 {
     data_init(&pdata);
-    log_error("hello");
     config_init(&pdata);
-    memory_pool_init(&pdata);
-    thread_pool_init(&pdata);
-    net_init(&pdata);
-    signal_init(&pdata);
+
     log_init();
 
-    log_debug("test %d", 1);
+    memory_pool_init(&pdata);
+
+    signal_init(&pdata);
+
+    thread_pool_init(&pdata);
+
+    net_init(&pdata);
+
 
     ev_run(pdata.reactor, 0);
 
