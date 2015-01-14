@@ -9,7 +9,7 @@
 
 void* task_thread(void *threadid)
 {
-    log_info("thread create");
+    log_info("thread %lu createed", pthread_self());
     return NULL;
 }
 

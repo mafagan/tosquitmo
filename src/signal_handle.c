@@ -6,7 +6,8 @@
 
 static void sigint_cb(struct ev_loop *reactor, ev_signal *int_w, int revents)
 {
-    log_error("signal int");
+    log_info("int recived");
+    ev_break(reactor, EVBREAK_ONE);
     return;
 }
 

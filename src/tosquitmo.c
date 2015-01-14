@@ -28,6 +28,7 @@ static void data_init(data_t *pdata)
 
 static void data_destroy()
 {
+    log_info("data destroy");
     return;
 }
 
