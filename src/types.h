@@ -38,9 +38,6 @@
 #define MQTT_UNSUBSCRIBE_VAR_LEN 2
 #define MQTT_UNSUBACK_VAR_LEN 2
 
-typedef struct{
-}subtree_t;
-
 
 typedef struct session{
     ev_io w;
