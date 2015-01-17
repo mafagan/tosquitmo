@@ -43,7 +43,7 @@ int main(void)
 
     memory_pool_init(&pdata);
 
-    db_init(&pdata);
+    subtree_init(pdata.sub_tree_root);
 
     signal_init(&pdata);
 

@@ -1,11 +1,9 @@
 #include "database.h"
 #include "memory_pool.h"
+#include "types.h"
 
-void db_init(data_t *pdata)
+void subtree_init(subtree_node_t *root)
 {
-    pdata->sub_tree_root = (subtree_node_t*)talloc(sizeof(sub_tree_root));
-
-    subtree_node_t *root = pdata->sub_tree_root;
     root->topic = NULL;
     root->child = NULL;
     root->next = root;
