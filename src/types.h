@@ -50,6 +50,8 @@ typedef struct session{
     int recv_length;
     int remaining_length;
     char *content;
+    char *username;
+    char *password;
     struct session *next_session;
 }session_t;
 
@@ -59,16 +61,6 @@ typedef struct config{
     short thread_num;
 } config_t;
 
-
-
-typedef struct{
-    session_t *session_head;
-    config_t *config;
-    int listenfd;
-    struct ev_loop *reactor;
-    pthread_t *threads;
-    session_t *session_end;
-}data_t;
 
 
 

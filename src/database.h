@@ -3,14 +3,16 @@
 
 #include "types.h"
 
-typedef struct{
-
+typedef struct subtree_node{
+    char *topic;
+    subtree_node_t *child;
+    subtree_node_t *next;
+    subtree_node_t *prev;
+    int sub_count;
+    session_t *suber_list;
 }subtree_node_t;
 
-typedef struct{
-    subtree_node_t *root;
-}subtree_t;
-
-void db_init(subtree_t *tree);
-
+void db_init(data_t *pdata);
+void _sub_add_brother(char *topic, subtree_node_t *node);
+void _sub_add_child(char *topic, subtree_node_t *node);
 #endif

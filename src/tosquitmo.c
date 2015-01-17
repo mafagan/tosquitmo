@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include "database.h"
 #include "net.h"
 #include "config.h"
 #include "net_read_handle.h"
@@ -24,6 +25,7 @@ static void data_init(data_t *pdata)
     pdata->reactor = EV_DEFAULT;
     pdata->session_end = NULL;
     pdata->threads = NULL;
+    pdata->sub_tree_root = NULL;
 }
 
 static void data_destroy()
@@ -40,6 +42,8 @@ int main(void)
     log_init();
 
     memory_pool_init(&pdata);
+
+    db_init(&pdata);
 
     signal_init(&pdata);
 
