@@ -62,6 +62,4 @@ typedef struct config{
 } config_t;
 
 
-
-
 #endif

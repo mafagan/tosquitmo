@@ -9,9 +9,16 @@
 #include "types.h"
 #include "logging.h"
 #include "memory_pool.h"
+#include "database.h"
+#include "tosquitmo.h"
 
-void _make_packet(session_t *session){
-    return;
+extern data_t pdata;
+
+static void _clean_session(session_t *session)
+{
+    session->recv_length = 0;
+    session->remaining_read = 0;
+    session->to_process = HEADER;
 }
 
 static int get_remaining_length(char *length_buf)
@@ -128,8 +135,10 @@ void socket_read_handle(struct ev_loop *reactor, ev_io *w, int events)
 
             s_session->recv_length += r_len;
 
-            if(s_session->recv_length == s_session->remaining_length){
-                _make_packet(s_session);
+            if(s_session->recv_length >= s_session->remaining_length){
+                _msg_add(pdata.msg_queue, s_session);
+                _clean_session(s_session);
+                break;
             }
         }while(1);
     }

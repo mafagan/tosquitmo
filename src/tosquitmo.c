@@ -19,13 +19,23 @@ data_t pdata;
 
 static void data_init(data_t *pdata)
 {
-
-    pdata->session_head = NULL;
-    pdata->config = NULL;
     pdata->reactor = EV_DEFAULT;
+    pdata->session_head = NULL;
     pdata->session_end = NULL;
-    pdata->threads = NULL;
-    pdata->sub_tree_root = NULL;
+
+    config_init(pdata);
+
+    memory_pool_init(pdata);
+
+    signal_init(pdata);
+
+    net_init(pdata);
+
+    thread_pool_init(pdata);
+
+    subtree_init(pdata);
+
+    message_queue_init(pdata);
 }
 
 static void data_destroy()
@@ -37,20 +47,8 @@ static void data_destroy()
 int main(void)
 {
     data_init(&pdata);
-    config_init(&pdata);
 
     log_init();
-
-    memory_pool_init(&pdata);
-
-    subtree_init(pdata.sub_tree_root);
-
-    signal_init(&pdata);
-
-    thread_pool_init(&pdata);
-
-    net_init(&pdata);
-
 
     ev_run(pdata.reactor, 0);
 
