@@ -13,6 +13,7 @@ typedef struct tosquitmo_message{
     char *content;
     int content_length;
     struct tosquitmo_message *next;
+    session_t *session;
 }tosquitmo_message_t;
 
 typedef struct tosquitmo_message_queue{

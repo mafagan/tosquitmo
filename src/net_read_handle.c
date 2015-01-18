@@ -19,6 +19,7 @@ static void _clean_session(session_t *session)
     session->recv_length = 0;
     session->remaining_read = 0;
     session->to_process = HEADER;
+    memset(session->remain_bytes, 0, 4);
 }
 
 static int get_remaining_length(char *length_buf)
