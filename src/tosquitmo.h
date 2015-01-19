@@ -33,6 +33,8 @@ typedef struct{
     pthread_t *threads;
     session_t *session_end;
     tosquitmo_message_queue_t *msg_queue;
+    int control_flag;
+    pthread_mutex_t ctrl_flag_lock;
 }data_t;
 
 

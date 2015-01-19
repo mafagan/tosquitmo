@@ -22,7 +22,8 @@ static void data_init(data_t *pdata)
     pdata->reactor = EV_DEFAULT;
     pdata->session_head = NULL;
     pdata->session_end = NULL;
-
+    pdata->control_flag = 1;
+    pthread_mutex_init(&pdata->ctrl_flag_lock, NULL);
     config_init(pdata);
 
     memory_pool_init(pdata);
