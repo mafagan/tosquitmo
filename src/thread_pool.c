@@ -8,6 +8,7 @@
 #include "logging.h"
 #include "memory_pool.h"
 #include "database.h"
+#include "tosquitmo_broker.h"
 
 extern data_t pdata;
 
@@ -29,8 +30,7 @@ void* task_thread(void *threadid)
 
         //TODO whether to sleep or not judged by cpu payload
         usleep(1);
-        //TODO
-
+        tos_exec_cmd(pdata.msg_queue);
 
         pthread_mutex_lock(&pdata.ctrl_flag_lock);
     }

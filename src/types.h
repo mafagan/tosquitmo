@@ -4,22 +4,22 @@
 #include <ev.h>
 #include <pthread.h>
 
-#define RESERVEDB   0x0000
-#define CONNECT     0x0001
-#define CONNACK     0x0002
-#define PUBLISH     0x0004
-#define PUBACK      0x0008
-#define PUBREC      0x0010
-#define PUBREL      0x0020
-#define PUBCOMP     0x0040
-#define SUBSCRIBE   0x0080
-#define SUBACK      0x0100
-#define UNSUBSCRIBE 0x0200
-#define UNSUBACK    0x0400
-#define PINGREQ     0x0800
-#define PINGRESP    0x1000
-#define DISCONNECT  0x2000
-#define RESERVEDE   0x4000
+#define RESERVEDB   0
+#define CONNECT     1
+#define CONNACK     2
+#define PUBLISH     3
+#define PUBACK      4
+#define PUBREC      5
+#define PUBREL      6
+#define PUBCOMP     7
+#define SUBSCRIBE   8
+#define SUBACK      9
+#define UNSUBSCRIBE 10
+#define UNSUBACK    11
+#define PINGREQ     12
+#define PINGRESP    13
+#define DISCONNECT  14
+#define RESERVEDE   15
 
 #define HEADER  0
 #define REMAINING 1
