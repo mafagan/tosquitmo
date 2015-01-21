@@ -5,59 +5,95 @@
 #include "tosquitmo_broker.h"
 #include "database.h"
 #include "tosquitmo.h"
+#include "logging.h"
 
 extern data_t pdata;
+
+/* return memory */
 static void tos_destroy_msg(tosquitmo_message_t *msg)
 {
-
+    //TODO
 }
 
-static void tos_connect(tosquitmo_message_t *msg)
+static void tos_connect_handle(tosquitmo_message_t *msg)
+{
+    char version = (*(char*)(msg->content+8));
+    char flags = (*(char*)msg->content+9);
+    int username_flag = (0x01 & (flags >> 7));
+    int password_flag = (0x01 & (flags >> 6));
+    int retaing_flag = (0x01 & (flags >> 5));
+    int qos_flag = (0x03 & (flags >> 3));
+    int flag_flag = (0x01 & (flags >> 2));
+    int clean_session_flag = (0x01 & (flags >> 1));
+
+    if(version != 0x03){
+
+    }
+
+    if(username_flag){
+
+    }
+
+    if(password_flag){
+
+    }
+
+    if(retaing_flag){
+
+    }
+
+    //TODO qos flag
+
+    if(flag_flag){
+        log_info("%d\n", qos_flag);
+    }
+
+    if(clean_session_flag){
+
+    }
+}
+
+static void tos_publish_handle(tosquitmo_message_t *msg)
 {
 
 }
 
-static void tos_publish(tosquitmo_message_t *msg)
+static void tos_pubrec_handle(tosquitmo_message_t *msg)
 {
 
 }
 
-static void tos_pubrec(tosquitmo_message_t *msg)
+static void tos_pubrel_handle(tosquitmo_message_t *msg)
 {
 
 }
 
-static void tos_pubrel(tosquitmo_message_t *msg)
+static void tos_pubcomp_handle(tosquitmo_message_t *msg)
 {
 
 }
 
-static void tos_pubcomp(tosquitmo_message_t *msg)
+static void tos_subscribe_handle(tosquitmo_message_t *msg)
 {
 
 }
 
-static void tos_subscribe(tosquitmo_message_t *msg)
+static void tos_unsucribe_handle(tosquitmo_message_t *msg)
 {
 
 }
 
-static void tos_unsucribe(tosquitmo_message_t *msg)
+static void tos_pingreq_handle(tosquitmo_message_t *msg)
 {
 
 }
 
-static void tos_pingreq(tosquitmo_message_t *msg)
+static void tos_pingresp_handle(tosquitmo_message_t *msg)
 {
 
 }
 
-static void tos_pingresp(tosquitmo_message_t *msg)
-{
-
-}
-
-static void tos_disconnect(tosquitmo_message_t *msg)
+static void tos_disconnect_handle(tosquitmo_message_t *msg)
 {
 
 }
@@ -100,7 +136,7 @@ void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
         break;
 
         case CONNECT:
-        tos_connect(msg_ptr);
+        tos_connect_handle(msg_ptr);
         break;
 
         case CONNACK:
@@ -108,7 +144,7 @@ void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
         break;
 
         case PUBLISH:
-        tos_publish(msg_ptr);
+        tos_publish_handle(msg_ptr);
         break;
 
         case PUBACK:
@@ -116,19 +152,19 @@ void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
         break;
 
         case PUBREC:
-        tos_pubrec(msg_ptr);
+        tos_pubrec_handle(msg_ptr);
         break;
 
         case PUBREL:
-        tos_pubrel(msg_ptr);
+        tos_pubrel_handle(msg_ptr);
         break;
 
         case PUBCOMP:
-        tos_pubcomp(msg_ptr);
+        tos_pubcomp_handle(msg_ptr);
         break;
 
         case SUBSCRIBE:
-        tos_subscribe(msg_ptr);
+        tos_subscribe_handle(msg_ptr);
         break;
 
         case SUBACK:
@@ -136,19 +172,19 @@ void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
         break;
 
         case UNSUBSCRIBE:
-        tos_unsucribe(msg_ptr);
+        tos_unsucribe_handle(msg_ptr);
         break;
 
         case PINGREQ:
-        tos_pingreq(msg_ptr);
+        tos_pingreq_handle(msg_ptr);
         break;
 
         case PINGRESP:
-        tos_pingresp(msg_ptr);
+        tos_pingresp_handle(msg_ptr);
         break;
 
         case DISCONNECT:
-        tos_disconnect(msg_ptr);
+        tos_disconnect_handle(msg_ptr);
         break;
 
         case RESERVEDB:
