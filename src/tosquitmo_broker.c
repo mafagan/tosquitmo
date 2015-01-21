@@ -6,6 +6,63 @@
 #include "database.h"
 #include "tosquitmo.h"
 
+extern data_t pdata;
+static void tos_destroy_msg(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_connect(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_publish(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_pubrec(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_pubrel(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_pubcomp(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_subscribe(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_unsucribe(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_pingreq(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_pingresp(tosquitmo_message_t *msg)
+{
+
+}
+
+static void tos_disconnect(tosquitmo_message_t *msg)
+{
+
+}
+
+
 void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
 {
     pthread_mutex_lock(&msg_queue->head_lock);
@@ -43,42 +100,55 @@ void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
         break;
 
         case CONNECT:
+        tos_connect(msg_ptr);
         break;
 
         case CONNACK:
+        //TBD
         break;
 
         case PUBLISH:
+        tos_publish(msg_ptr);
         break;
 
         case PUBACK:
+        //TBD
         break;
 
         case PUBREC:
+        tos_pubrec(msg_ptr);
         break;
 
         case PUBREL:
+        tos_pubrel(msg_ptr);
         break;
 
         case PUBCOMP:
+        tos_pubcomp(msg_ptr);
         break;
 
         case SUBSCRIBE:
+        tos_subscribe(msg_ptr);
         break;
 
         case SUBACK:
+        //TBD
         break;
 
         case UNSUBSCRIBE:
+        tos_unsucribe(msg_ptr);
         break;
 
         case PINGREQ:
+        tos_pingreq(msg_ptr);
         break;
 
         case PINGRESP:
+        tos_pingresp(msg_ptr);
         break;
 
         case DISCONNECT:
+        tos_disconnect(msg_ptr);
         break;
 
         case RESERVEDB:
@@ -88,5 +158,6 @@ void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
         break;
 
     }
+    tos_destroy_msg(msg_ptr);
     return;
 }
