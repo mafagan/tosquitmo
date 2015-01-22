@@ -49,6 +49,7 @@ typedef struct session{
     int command;
     int recv_length;
     int remaining_length;
+    int keepalive;
     char *content;
     char *username;
     char *password;

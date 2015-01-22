@@ -89,9 +89,11 @@ session_t* new_session()
     n_session->recv_length = 0;
     n_session->to_process = HEADER;
     n_session->remaining_read = 0;
+    n_session->keepalive = 0;
     n_session->content = NULL;
     n_session->username = NULL;
     n_session->password = NULL;
+    pthread_mutex_init(&n_session->session_lock, NULL);
     return n_session;
 }
 

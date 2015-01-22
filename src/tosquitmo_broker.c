@@ -44,9 +44,11 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
 
     }
 
+    session_t *session = msg->session;
     pthread_mutex_lock(&msg->session->session_lock);
 
-    //TODO keepalive
+    session->keepalive = keepalive;
+
     if(username_flag){
         int len = ((*(char*)(payload)) << 8 + (*(char*)(payload+1))) & 0xff;
         //TODO
