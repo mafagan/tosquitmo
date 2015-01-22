@@ -15,6 +15,17 @@ static void tos_destroy_msg(tosquitmo_message_t *msg)
     //TODO
 }
 
+static int if_clientid_exist(char *clientid)
+{
+    return 0;
+}
+
+static void tos_connack_write()
+{
+
+}
+
+
 static void tos_connect_handle(tosquitmo_message_t *msg)
 {
     char version = (*(char*)(msg->content+8));
@@ -26,12 +37,19 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
     int flag_flag = (0x01 & (flags >> 2));
     int clean_session_flag = (0x01 & (flags >> 1));
 
+    int keepalive = ((*(char*)(msg->content+10)) << 8 + (*(char*)(msg->content+11)));
+    char *payload = msg->content + 12;
+
     if(version != 0x03){
 
     }
 
-    if(username_flag){
+    pthread_mutex_lock(&msg->session->session_lock);
 
+    //TODO keepalive
+    if(username_flag){
+        int len = ((*(char*)(payload)) << 8 + (*(char*)(payload+1))) & 0xff;
+        //TODO
     }
 
     if(password_flag){
@@ -51,6 +69,7 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
     if(clean_session_flag){
 
     }
+    pthread_mutex_unlock(&msg->session->session_lock);
 }
 
 static void tos_publish_handle(tosquitmo_message_t *msg)

@@ -90,6 +90,8 @@ session_t* new_session()
     n_session->to_process = HEADER;
     n_session->remaining_read = 0;
     n_session->content = NULL;
+    n_session->username = NULL;
+    n_session->password = NULL;
     return n_session;
 }
 
