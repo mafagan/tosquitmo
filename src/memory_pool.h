@@ -8,5 +8,5 @@
 
 void memory_pool_init(data_t *pdata);
 void* talloc(size_t size);
-
+void tfree(void *ptr);
 #endif

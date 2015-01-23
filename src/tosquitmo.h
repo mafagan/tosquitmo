@@ -7,6 +7,13 @@
 #include "types.h"
 #include "uthash.h"
 
+#define CONN_ACCEPT 0x00
+#define CONN_REFUSE_VERSION 0x01
+#define CONN_REFUSE_IDENTIFIER 0x02
+#define CONN_REFUSE_SERVER_UNAVAILABLE 0x03
+#define CONN_REFUSE_BAD_USR_OR_PWD 0x04
+#define CONN_REFUSE_NOT_AUTHORIZED 0x05
+
 struct subtree_node;
 
 typedef struct tosquitmo_message{
@@ -44,4 +51,5 @@ typedef struct{
 }data_t;
 
 
+void _msg_destroy(tosquitmo_message_t *msg);
 #endif

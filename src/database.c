@@ -20,6 +20,7 @@ void message_queue_init(data_t *pdata)
     pdata->msg_queue->head = pdata->msg_queue->end = NULL;
     pthread_mutex_init(&pdata->msg_queue->head_lock, NULL);
     pthread_mutex_init(&pdata->msg_queue->end_lock, NULL);
+
 }
 
 void _msg_add(tosquitmo_message_queue_t *msg_queue, session_t *session)

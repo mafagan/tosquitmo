@@ -16,15 +16,15 @@
 
 extern data_t pdata;
 
-/* return memory */
-static void tos_destroy_msg(tosquitmo_message_t *msg)
+static void tos_connack_write(int ret, session_t *session)
 {
-    //TODO
-}
+    char *content = (char*)talloc(4);
 
-static void tos_connack_write()
-{
+    *content = 0x20;
+    *(content+1) = 0x02;
+    *(content+3) = (char)ret;
 
+    write(session->w.fd, content, 4);
 }
 
 
@@ -42,20 +42,24 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
     int keepalive = (((*(char*)(msg->content+10)) << 8) + (*(char*)(msg->content+11)));
     char *payload = msg->content + 12;
 
-    if(version != 0x03){
-        //TODO reject
-    }
-
     session_t *session = msg->session;
     pthread_mutex_lock(&msg->session->session_lock);
 
+
+    if(version != 0x03){
+        tos_connack_write(CONN_REFUSE_VERSION, session);
+        pthread_mutex_unlock(&session->session_lock);
+        return;
+    }
     session->keepalive = keepalive;
     session->connect_flags = *(msg->content + 9);
 
     /* get client identifier */
     int len = (((*payload) << 8) + (*(payload+1))) & 0xff;
     if(len > 23){
-        //TODO reject connect
+        tos_connack_write(CONN_REFUSE_IDENTIFIER, session);
+        pthread_mutex_unlock(&session->session_lock);
+        return;
     }
 
     /* check client id unique */
@@ -66,7 +70,9 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
     HASH_FIND_STR(pdata.id_table, tmp->identifier, check_tmp);
 
     if(check_tmp){
-        //TODO reject connect
+        tos_connack_write(CONN_REFUSE_IDENTIFIER, session);
+        pthread_mutex_unlock(&session->session_lock);
+        return;
     }else{
         HASH_ADD_STR(pdata.id_table, identifier, tmp);
         session->id_struct = tmp;
@@ -109,6 +115,9 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
         payload = payload + 2 + len;
     }
 
+    //TODO set connected state
+
+    tos_connack_write(CONN_ACCEPT, session);
     pthread_mutex_unlock(&msg->session->session_lock);
 }
 
@@ -253,6 +262,7 @@ void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
         break;
 
     }
-    tos_destroy_msg(msg_ptr);
+    tfree(msg_ptr->content);
+    tfree(msg_ptr);
     return;
 }
