@@ -43,7 +43,7 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
     char *payload = msg->content + 12;
 
     if(version != 0x03){
-
+        //TODO reject
     }
 
     session_t *session = msg->session;
