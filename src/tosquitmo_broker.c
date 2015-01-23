@@ -1,11 +1,17 @@
 #include <pthread.h>
+
+/* for sleep */
 #include <time.h>
 #include <unistd.h>
+
+/* for strncpy */
+#include <string.h>
 
 #include "tosquitmo_broker.h"
 #include "database.h"
 #include "tosquitmo.h"
 #include "logging.h"
+#include "memory_pool.h"
 
 extern data_t pdata;
 
@@ -15,7 +21,7 @@ static void tos_destroy_msg(tosquitmo_message_t *msg)
     //TODO
 }
 
-static int if_clientid_exist(char *clientid)
+static int _clientid_exist(char *clientid)
 {
     return 0;
 }
@@ -32,12 +38,12 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
     char flags = (*(char*)msg->content+9);
     int username_flag = (0x01 & (flags >> 7));
     int password_flag = (0x01 & (flags >> 6));
-    int retaing_flag = (0x01 & (flags >> 5));
-    int qos_flag = (0x03 & (flags >> 3));
-    int flag_flag = (0x01 & (flags >> 2));
-    int clean_session_flag = (0x01 & (flags >> 1));
+    // int retaing_flag = (0x01 & (flags >> 5));
+    // int willqos_flag = (0x03 & (flags >> 3));
+    int will_flag = (0x01 & (flags >> 2));
+    // int clean_session_flag = (0x01 & (flags >> 1));
 
-    int keepalive = ((*(char*)(msg->content+10)) << 8 + (*(char*)(msg->content+11)));
+    int keepalive = (((*(char*)(msg->content+10)) << 8) + (*(char*)(msg->content+11)));
     char *payload = msg->content + 12;
 
     if(version != 0x03){
@@ -48,29 +54,55 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
     pthread_mutex_lock(&msg->session->session_lock);
 
     session->keepalive = keepalive;
+    session->connect_flags = *(msg->content + 9);
 
-    if(username_flag){
-        int len = ((*(char*)(payload)) << 8 + (*(char*)(payload+1))) & 0xff;
+    /* get client identifier */
+    int len = (((*payload) << 8) + (*(payload+1))) & 0xff;
+    session->identifier = (char*)talloc(len+1);
+    strncpy(session->identifier, payload+2, len);
+    session->identifier[len] = '\0';
+
+    if(_clientid_exist(session->identifier)){
         //TODO
     }
 
+    payload = payload + 2 + len;
+
+    /* get will topic, message and will qos */
+    if(will_flag){
+        len = (((*payload) << 8) + (*(payload+1))) & 0xff;
+        session->will_topic = (char*)talloc(len+1);
+        strncpy(session->will_topic, payload + 2, len);
+        session->will_topic[len] = '\0';
+
+        payload = payload + 2 + len;
+        len = (((*payload) << 8) + (*(payload+1))) & 0xff;
+        session->will_message = (char*)talloc(len+1);
+        strncpy(session->will_message, payload + 2, len);
+        session->will_message[len] = '\0';
+
+        payload = payload + 2 + len;
+    }
+
+
+    if(username_flag){
+        len = (((*(char*)(payload)) << 8) + (*(char*)(payload+1))) & 0xff;
+        session->username = (char*)talloc(len+1);
+        strncpy(session->username, payload + 2, len);
+        session->username[len] = '\0';
+
+        payload = payload + 2 + len;
+    }
+
     if(password_flag){
+        len = (((*(char*)(payload)) << 8) + (*(char*)(payload+1))) & 0xff;
+        session->password= (char*)talloc(len+1);
+        strncpy(session->password, payload + 2, len);
+        session->password[len] = '\0';
 
+        payload = payload + 2 + len;
     }
 
-    if(retaing_flag){
-
-    }
-
-    //TODO qos flag
-
-    if(flag_flag){
-        log_info("%d\n", qos_flag);
-    }
-
-    if(clean_session_flag){
-
-    }
     pthread_mutex_unlock(&msg->session->session_lock);
 }
 

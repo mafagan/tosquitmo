@@ -93,6 +93,8 @@ session_t* new_session()
     n_session->content = NULL;
     n_session->username = NULL;
     n_session->password = NULL;
+    n_session->will_topic = NULL;
+    n_session->will_message = NULL;
     pthread_mutex_init(&n_session->session_lock, NULL);
     return n_session;
 }

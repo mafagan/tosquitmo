@@ -53,6 +53,9 @@ typedef struct session{
     char *content;
     char *username;
     char *password;
+    char *will_topic;
+    char *will_message;
+    char connect_flags;
     pthread_mutex_t session_lock;
     struct session *next_session;
 }session_t;
