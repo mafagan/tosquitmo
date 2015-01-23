@@ -12,6 +12,7 @@
 #include "tosquitmo.h"
 #include "logging.h"
 #include "memory_pool.h"
+#include "uthash.h"
 
 extern data_t pdata;
 
@@ -19,11 +20,6 @@ extern data_t pdata;
 static void tos_destroy_msg(tosquitmo_message_t *msg)
 {
     //TODO
-}
-
-static int _clientid_exist(char *clientid)
-{
-    return 0;
 }
 
 static void tos_connack_write()
@@ -58,12 +54,22 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
 
     /* get client identifier */
     int len = (((*payload) << 8) + (*(payload+1))) & 0xff;
-    session->identifier = (char*)talloc(len+1);
-    strncpy(session->identifier, payload+2, len);
-    session->identifier[len] = '\0';
+    if(len > 23){
+        //TODO reject connect
+    }
 
-    if(_clientid_exist(session->identifier)){
-        //TODO
+    /* check client id unique */
+    struct client_id_struct *tmp = (struct client_id_struct*)talloc(sizeof(struct client_id_struct));
+    strncpy(tmp->identifier, payload+2, sizeof(tmp->identifier));
+
+    struct client_id_struct *check_tmp;
+    HASH_FIND_STR(pdata.id_table, tmp->identifier, check_tmp);
+
+    if(check_tmp){
+        //TODO reject connect
+    }else{
+        HASH_ADD_STR(pdata.id_table, identifier, tmp);
+        session->id_struct = tmp;
     }
 
     payload = payload + 2 + len;

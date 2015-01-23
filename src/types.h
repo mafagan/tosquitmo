@@ -38,10 +38,11 @@
 #define MQTT_UNSUBSCRIBE_VAR_LEN 2
 #define MQTT_UNSUBACK_VAR_LEN 2
 
+struct client_id_struct;
 
 typedef struct session{
     ev_io w;
-    char *identifier;
+    struct client_id_struct *id_struct;
     char remain_bytes[4];
     char remaining_read;
     char header;

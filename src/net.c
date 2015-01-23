@@ -89,6 +89,7 @@ session_t* new_session()
     n_session->recv_length = 0;
     n_session->to_process = HEADER;
     n_session->remaining_read = 0;
+    n_session->id_struct = NULL;
     n_session->keepalive = 0;
     n_session->content = NULL;
     n_session->username = NULL;

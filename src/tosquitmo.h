@@ -5,6 +5,7 @@
 #include <pthread.h>
 
 #include "types.h"
+#include "uthash.h"
 
 struct subtree_node;
 
@@ -24,6 +25,10 @@ typedef struct tosquitmo_message_queue{
 }tosquitmo_message_queue_t;
 
 
+struct client_id_struct{
+    char identifier[24];
+    UT_hash_handle hh;
+};
 typedef struct{
     struct subtree_node *sub_tree_root;
     session_t *session_head;
@@ -34,6 +39,7 @@ typedef struct{
     session_t *session_end;
     tosquitmo_message_queue_t *msg_queue;
     int control_flag;
+    struct client_id_struct *id_table;
     pthread_mutex_t ctrl_flag_lock;
 }data_t;
 
