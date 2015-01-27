@@ -121,6 +121,11 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
     pthread_mutex_unlock(&msg->session->session_lock);
 }
 
+static void tos_subscribe_handle(tosquitmo_message_t *msg)
+{
+
+}
+
 static void tos_publish_handle(tosquitmo_message_t *msg)
 {
 
@@ -137,11 +142,6 @@ static void tos_pubrel_handle(tosquitmo_message_t *msg)
 }
 
 static void tos_pubcomp_handle(tosquitmo_message_t *msg)
-{
-
-}
-
-static void tos_subscribe_handle(tosquitmo_message_t *msg)
 {
 
 }
@@ -262,7 +262,6 @@ void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
         break;
 
     }
-    tfree(msg_ptr->content);
-    tfree(msg_ptr);
+    TOS_msg_free(msg_ptr);
     return;
 }

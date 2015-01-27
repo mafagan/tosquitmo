@@ -47,7 +47,6 @@ typedef struct session{
     char remaining_read;
     char header;
     char to_process;
-    int command;
     int recv_length;
     int remaining_length;
     int keepalive;

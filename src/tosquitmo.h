@@ -50,6 +50,5 @@ typedef struct{
     pthread_mutex_t ctrl_flag_lock;
 }data_t;
 
-
 void _msg_destroy(tosquitmo_message_t *msg);
 #endif
