@@ -16,6 +16,12 @@
 
 extern data_t pdata;
 
+static int is_usrname_password_valid(char *username, char *password)
+{
+
+    return 0;
+}
+
 static void tos_connack_write(int ret, session_t *session)
 {
     char *content = (char*)talloc(4);
@@ -115,15 +121,32 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
         payload = payload + 2 + len;
     }
 
-    //TODO set connected state
+    if(!is_usrname_password_valid(session->username, session->password)){
+        tos_connack_write(CONN_REFUSE_BAD_USR_OR_PWD, session);
+        pthread_mutex_unlock(&session->session_lock);
+        return;
+    }
 
     tos_connack_write(CONN_ACCEPT, session);
+    session->is_connected = 1;
     pthread_mutex_unlock(&msg->session->session_lock);
+
 }
 
 static void tos_subscribe_handle(tosquitmo_message_t *msg)
 {
+    char *cur = msg->content;
+    int dup = ((msg->header) >> 3) & 0x01;
+    int qos = ((msg->header) >> 1) & 0x03;
 
+    char *payload;
+
+    if(qos >= 1){
+        //TODO get msg ID
+        payload = msg->content + 2;
+    }else{
+        payload = msg->content;
+    }
 }
 
 static void tos_publish_handle(tosquitmo_message_t *msg)

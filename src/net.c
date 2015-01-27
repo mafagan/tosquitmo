@@ -86,6 +86,7 @@ session_t* new_session()
         pdata.session_head = n_session;
         pdata.session_end = n_session;
     }
+    n_session->is_connected = 0;
     n_session->recv_length = 0;
     n_session->to_process = HEADER;
     n_session->remaining_read = 0;
