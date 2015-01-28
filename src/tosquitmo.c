@@ -24,7 +24,6 @@ static void data_init(data_t *pdata)
     pdata->session_end = NULL;
     pdata->control_flag = 1;
     pdata->id_table = NULL;
-    pdata->sub_tree_root = NULL;
     pthread_mutex_init(&pdata->ctrl_flag_lock, NULL);
     config_init(pdata);
 
@@ -36,6 +35,7 @@ static void data_init(data_t *pdata)
 
     thread_pool_init(pdata);
 
+    subtree_init(pdata);
 
     message_queue_init(pdata);
 }

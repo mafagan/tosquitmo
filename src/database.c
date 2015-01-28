@@ -3,6 +3,16 @@
 #include "types.h"
 #include "tosquitmo.h"
 
+void subtree_init(data_t *pdata)
+{
+    pdata->sub_tree_root = (subtree_node_t*)talloc(sizeof(subtree_node_t));
+    pdata->sub_tree_root->children = NULL;
+    pdata->sub_tree_root->suber_list = NULL;
+    pdata->sub_tree_root->tail_node = NULL;
+    pdata->sub_tree_root->jinghao_suber_list = NULL;
+    pdata->sub_tree_root->sub_count = 0;
+}
+
 void message_queue_init(data_t *pdata)
 {
     pdata->msg_queue = (tosquitmo_message_queue_t*)talloc(sizeof(tosquitmo_message_queue_t));

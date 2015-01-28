@@ -156,13 +156,47 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
 
     int len = (((*var) << 8) + (*(var+1))) & 0xffff;
 
+    if(len > 64 * 1024){
+        //TODO refuse it
+    }
+
+    char *topic = var + 2;
+
     int begin_ptr = 0, end_ptr;
 
     pthread_mutex_lock(&pdata.sub_tree_lock);
+
+    subtree_node_t *cur_node = pdata.sub_tree_root;
+    subtree_node_t *tmp;
+
     while(begin_ptr < len)
     {
+        /* topic level will be seperated in  [~) mode]*/
         end_ptr = _find_topic_level_end(var+begin_ptr);
-        //TODO modify subtree
+
+        char *cur_level = (char*)talloc(end_ptr - begin_ptr + 1);
+
+        strncpy(cur_level, topic, end_ptr - begin_ptr);
+        cur_level[end_ptr-begin_ptr] = '\0';
+
+        int plus_flag = strcmp("+", cur_level);
+        int hashtag_flag = strcmp("#", cur_level);
+
+        if(plus_flag == 0x00){
+
+        }
+
+        if(hashtag_flag == 0x00){
+
+        }
+
+        HASH_FIND_PTR(cur_node->children, &cur_level, tmp);
+
+        if(tmp){
+
+        }else{
+
+        }
 
         begin_ptr = end_ptr + 1;
     }
