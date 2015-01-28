@@ -38,6 +38,7 @@ struct client_id_struct{
 };
 typedef struct{
     struct subtree_node *sub_tree_root;
+    pthread_mutex_t sub_tree_lock;
     session_t *session_head;
     config_t *config;
     int listenfd;

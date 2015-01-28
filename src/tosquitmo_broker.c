@@ -16,6 +16,13 @@
 
 extern data_t pdata;
 
+
+static int _find_topic_level_end(char *str)
+{
+
+    return 0;
+}
+
 static int is_usrname_password_valid(char *username, char *password)
 {
 
@@ -139,14 +146,28 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
     int dup = ((msg->header) >> 3) & 0x01;
     int qos = ((msg->header) >> 1) & 0x03;
 
-    char *payload;
 
-    if(qos >= 1){
-        //TODO get msg ID
-        payload = msg->content + 2;
-    }else{
-        payload = msg->content;
+    char *var = msg->content;
+
+    if(qos >= 1)
+    {
+        var += 2;
     }
+
+    int len = (((*var) << 8) + (*(var+1))) & 0xffff;
+
+    int begin_ptr = 0, end_ptr;
+
+    pthread_mutex_lock(&pdata.sub_tree_lock);
+    while(begin_ptr < len)
+    {
+        end_ptr = _find_topic_level_end(var+begin_ptr);
+        //TODO modify subtree
+
+        begin_ptr = end_ptr + 1;
+    }
+
+    pthread_mutex_unlock(&pdata.sub_tree_lock);
 }
 
 static void tos_publish_handle(tosquitmo_message_t *msg)
