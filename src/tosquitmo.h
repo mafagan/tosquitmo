@@ -14,6 +14,8 @@
 #define CONN_REFUSE_BAD_USR_OR_PWD 0x04
 #define CONN_REFUSE_NOT_AUTHORIZED 0x05
 
+#define TOS_MAX_TOPIC_IN_SUB    1024
+
 struct subtree_node;
 
 typedef struct tosquitmo_message{

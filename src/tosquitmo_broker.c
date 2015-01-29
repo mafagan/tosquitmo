@@ -7,6 +7,9 @@
 /* for strncpy */
 #include <string.h>
 
+/* for iov */
+#include <sys/uio.h>
+
 #include "tosquitmo_broker.h"
 #include "database.h"
 #include "tosquitmo.h"
@@ -23,10 +26,28 @@ static int _find_topic_level_end(char *str)
     return 0;
 }
 
+
 static int is_usrname_password_valid(char *username, char *password)
 {
 
     return 0;
+}
+
+static void tos_suback_write(char *qosArray, int qos_len, char *msg_id, session_t *session)
+{
+    char header = 0xff & (9 << 4);
+    struct iovec iov[4];
+    iov[0].iov_base = &header;
+    iov[0].iov_len = 1;
+
+    /* TODO remaining length */
+    iov[2].iov_base = msg_id;
+    iov[2].iov_len = 2;
+
+    iov[3].iov_base = qosArray;
+    iov[3].iov_len = qos_len;
+    writev(session->w.fd, iov, 4);
+
 }
 
 static void tos_connack_write(int ret, session_t *session)
@@ -147,9 +168,13 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
     int qos = ((msg->header) >> 1) & 0x03;
     int msg_length = msg->content_length;
     int byte_readed = 0;
-
+    char granted_qos[1024];
+    int topic_count = 0;
     char *var = msg->content;
+
     //TODO get message id
+    char *msg_id = (char*)talloc(2);
+    strncpy(msg_id, var, 2);
 
     if(qos >= 1)
     {
@@ -158,6 +183,7 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
     }
 
     while(byte_readed < msg_length){
+
         int len = (((*var) << 8) + (*(var+1))) & 0xffff;
 
         if(len > 64 * 1024){
@@ -177,6 +203,12 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
 
         while(begin_ptr < len)
         {
+
+            if(topic_count > TOS_MAX_TOPIC_IN_SUB){
+                /* ignore the rest */
+                break;
+            }
+
             /* topic level will be seperated in  [~) mode]*/
             end_ptr = _find_topic_level_end(var+begin_ptr);
 
@@ -231,9 +263,13 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
 
         pthread_mutex_unlock(&pdata.sub_tree_lock);
 
+        granted_qos[topic_count] = topic_sub_qos;
+        topic_count += 1;
         var = var + 2 + len;
         byte_readed += 2 + len;
     }
+    tos_suback_write(granted_qos, topic_count, msg_id, msg->session);
+
 }
 
 static void tos_publish_handle(tosquitmo_message_t *msg)
