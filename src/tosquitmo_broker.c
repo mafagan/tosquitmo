@@ -145,63 +145,89 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
     char *cur = msg->content;
     int dup = ((msg->header) >> 3) & 0x01;
     int qos = ((msg->header) >> 1) & 0x03;
-
+    int msg_length = msg->content_length;
+    int byte_readed = 0;
 
     char *var = msg->content;
+    //TODO get message id
 
     if(qos >= 1)
     {
         var += 2;
+        byte_readed += 2;
     }
 
-    int len = (((*var) << 8) + (*(var+1))) & 0xffff;
+    while(byte_readed < msg_length){
+        int len = (((*var) << 8) + (*(var+1))) & 0xffff;
 
-    if(len > 64 * 1024){
-        //TODO refuse it
+        if(len > 64 * 1024){
+            //TODO refuse it
+        }
+
+        char *topic = var + 2;
+
+        char *qos_ptr = topic + len;
+        int topic_sub_qos = (*qos_ptr) & 0xff;
+        int begin_ptr = 0, end_ptr;
+
+        pthread_mutex_lock(&pdata.sub_tree_lock);
+
+        subtree_node_t *cur_node = pdata.sub_tree_root;
+        subtree_node_t *tmp;
+
+        while(begin_ptr < len)
+        {
+            /* topic level will be seperated in  [~) mode]*/
+            end_ptr = _find_topic_level_end(var+begin_ptr);
+
+            char *cur_level = (char*)talloc(end_ptr - begin_ptr + 1);
+
+            strncpy(cur_level, topic, end_ptr - begin_ptr);
+            cur_level[end_ptr-begin_ptr] = '\0';
+
+            HASH_FIND_STR(cur_node->children, cur_level, tmp);
+
+            if(tmp){
+
+                int hashtag_flag = strcmp("#", cur_level);
+
+                if(hashtag_flag == 0x00){
+                    if(end_ptr < len){
+                        /* TODO reject sub */
+                    }
+                    tmp->tail_node->next = (struct suber_node*)talloc(sizeof(struct suber_node));
+                    tmp->tail_node = tmp->tail_node->next;
+                    tmp->tail_node->session = msg->session;
+                    tmp->tail_node->qos = topic_sub_qos;
+                    tmp->tail_node->next = NULL;
+                    tmp->sub_count ++;
+                }
+
+                cur_node = tmp;
+            }else{
+                tmp = (subtree_node_t*)talloc(sizeof(subtree_node_t));
+                tmp->topic = cur_level;
+                tmp->sub_count = 1;
+                tmp->children = NULL;
+                tmp->suber_list = (struct suber_node*)talloc(sizeof(struct suber_node));
+                tmp->tail_node = tmp->suber_list;
+                tmp->tail_node->session = msg->session;
+                tmp->tail_node->qos = topic_sub_qos;
+                tmp->tail_node->next = NULL;
+
+                HASH_ADD_KEYPTR(hh, cur_node->children, tmp->topic, strlen(tmp->topic), tmp);
+
+                cur_node = tmp;
+            }
+
+            begin_ptr = end_ptr + 1;
+        }
+
+        pthread_mutex_unlock(&pdata.sub_tree_lock);
+
+        var = var + 2 + len;
+        byte_readed += 2 + len;
     }
-
-    char *topic = var + 2;
-
-    int begin_ptr = 0, end_ptr;
-
-    pthread_mutex_lock(&pdata.sub_tree_lock);
-
-    subtree_node_t *cur_node = pdata.sub_tree_root;
-    subtree_node_t *tmp;
-
-    while(begin_ptr < len)
-    {
-        /* topic level will be seperated in  [~) mode]*/
-        end_ptr = _find_topic_level_end(var+begin_ptr);
-
-        char *cur_level = (char*)talloc(end_ptr - begin_ptr + 1);
-
-        strncpy(cur_level, topic, end_ptr - begin_ptr);
-        cur_level[end_ptr-begin_ptr] = '\0';
-
-        int plus_flag = strcmp("+", cur_level);
-        int hashtag_flag = strcmp("#", cur_level);
-
-        if(plus_flag == 0x00){
-
-        }
-
-        if(hashtag_flag == 0x00){
-
-        }
-
-        HASH_FIND_PTR(cur_node->children, &cur_level, tmp);
-
-        if(tmp){
-
-        }else{
-
-        }
-
-        begin_ptr = end_ptr + 1;
-    }
-
-    pthread_mutex_unlock(&pdata.sub_tree_lock);
 }
 
 static void tos_publish_handle(tosquitmo_message_t *msg)
@@ -279,65 +305,65 @@ void tos_exec_cmd(tosquitmo_message_queue_t *msg_queue)
     char msg_type = 0x0f & (msg_ptr->header >> 4);
     switch(msg_type){
         case RESERVEDE:
-        break;
+            break;
 
         case CONNECT:
-        tos_connect_handle(msg_ptr);
-        break;
+            tos_connect_handle(msg_ptr);
+            break;
 
         case CONNACK:
-        //TBD
-        break;
+            //TBD
+            break;
 
         case PUBLISH:
-        tos_publish_handle(msg_ptr);
-        break;
+            tos_publish_handle(msg_ptr);
+            break;
 
         case PUBACK:
-        //TBD
-        break;
+            //TBD
+            break;
 
         case PUBREC:
-        tos_pubrec_handle(msg_ptr);
-        break;
+            tos_pubrec_handle(msg_ptr);
+            break;
 
         case PUBREL:
-        tos_pubrel_handle(msg_ptr);
-        break;
+            tos_pubrel_handle(msg_ptr);
+            break;
 
         case PUBCOMP:
-        tos_pubcomp_handle(msg_ptr);
-        break;
+            tos_pubcomp_handle(msg_ptr);
+            break;
 
         case SUBSCRIBE:
-        tos_subscribe_handle(msg_ptr);
-        break;
+            tos_subscribe_handle(msg_ptr);
+            break;
 
         case SUBACK:
-        //TBD
-        break;
+            //TBD
+            break;
 
         case UNSUBSCRIBE:
-        tos_unsucribe_handle(msg_ptr);
-        break;
+            tos_unsucribe_handle(msg_ptr);
+            break;
 
         case PINGREQ:
-        tos_pingreq_handle(msg_ptr);
-        break;
+            tos_pingreq_handle(msg_ptr);
+            break;
 
         case PINGRESP:
-        tos_pingresp_handle(msg_ptr);
-        break;
+            tos_pingresp_handle(msg_ptr);
+            break;
 
         case DISCONNECT:
-        tos_disconnect_handle(msg_ptr);
-        break;
+            tos_disconnect_handle(msg_ptr);
+            break;
 
         case RESERVEDB:
-        break;
+            break;
 
         default:
-        break;
+            break;
 
     }
     TOS_msg_free(msg_ptr);

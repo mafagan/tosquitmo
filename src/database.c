@@ -9,7 +9,6 @@ void subtree_init(data_t *pdata)
     pdata->sub_tree_root->children = NULL;
     pdata->sub_tree_root->suber_list = NULL;
     pdata->sub_tree_root->tail_node = NULL;
-    pdata->sub_tree_root->jinghao_suber_list = NULL;
     pdata->sub_tree_root->sub_count = 0;
 }
 
