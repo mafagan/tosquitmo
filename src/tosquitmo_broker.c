@@ -209,18 +209,24 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
                 tmp->topic = cur_level;
                 tmp->sub_count = 1;
                 tmp->children = NULL;
-                tmp->suber_list = (struct suber_node*)talloc(sizeof(struct suber_node));
-                tmp->tail_node = tmp->suber_list;
-                tmp->tail_node->session = msg->session;
-                tmp->tail_node->qos = topic_sub_qos;
-                tmp->tail_node->next = NULL;
+
+                if(end_ptr >= len){
+                    tmp->suber_list = (struct suber_node*)talloc(sizeof(struct suber_node));
+                    tmp->tail_node = tmp->suber_list;
+                    tmp->tail_node->session = msg->session;
+                    tmp->tail_node->qos = topic_sub_qos;
+                    tmp->tail_node->next = NULL;
+                }else{
+                    tmp->suber_list = NULL;
+                    tmp->tail_node = NULL;
+                }
 
                 HASH_ADD_KEYPTR(hh, cur_node->children, tmp->topic, strlen(tmp->topic), tmp);
 
                 cur_node = tmp;
             }
 
-            begin_ptr = end_ptr + 1;
+            begin_ptr = end_ptr;
         }
 
         pthread_mutex_unlock(&pdata.sub_tree_lock);
