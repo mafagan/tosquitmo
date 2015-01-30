@@ -1,9 +1,13 @@
 #ifndef _DATABASE_H_
 #define _DATABASE_H_
 
+/* slink-list */
+#include <sys/queue.h>
+
 #include "types.h"
 #include "tosquitmo.h"
 #include "uthash.h"
+
 
 struct suber_node{
     session_t *session;
@@ -17,6 +21,7 @@ typedef struct subtree_node{
     struct suber_node *suber_list;
     struct suber_node *tail_node;
     struct subtree_node *children;
+    SLIST_ENTRY(subtree_node) entry;
     UT_hash_handle hh;
 }subtree_node_t;
 

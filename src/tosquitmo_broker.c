@@ -10,6 +10,9 @@
 /* for iov */
 #include <sys/uio.h>
 
+/* for slink-list */
+#include <sys/queue.h>
+
 #include "tosquitmo_broker.h"
 #include "database.h"
 #include "tosquitmo.h"
@@ -17,8 +20,18 @@
 #include "memory_pool.h"
 #include "uthash.h"
 
+
 extern data_t pdata;
 
+typedef struct tos_topic_token{
+    char *token;
+    struct tos_topic_token *next;
+}tos_topic_token_t;
+
+static char* _set_backslash_null(char *begin_ptr)
+{
+
+}
 
 static int _find_topic_level_end(char *str)
 {
@@ -274,7 +287,57 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
 
 static void tos_publish_handle(tosquitmo_message_t *msg)
 {
+    char header = msg->header;
+    int pub_qos = (header >> 1) & 0x03;
+    int dup = (header >> 3) & 0x01;
 
+    char *var = msg->content;
+
+    subtree_node_t *sub_node = pdata.sub_tree_root;
+
+    if(!sub_node){
+        /* empty topic tree means nothing to do */
+        TOS_msg_free(msg);
+        return;
+    }
+
+    int len = (((*var) << 8) + (*(var+1))) & 0xff;
+
+
+    char *topic = (char*)talloc(len+1);
+    char *topic_end = topic + len + 1;
+    strncpy(topic, var, len);
+    topic[len] = '\0';
+
+    char *token_begin = topic;
+    char *token_end = _set_backslash_null(token_begin);
+
+
+    SLIST_HEAD(list_head_t, subtree_node) sub_node_head;
+    SLIST_INIT(&sub_node_head);
+    SLIST_INSERT_HEAD(&sub_node_head, sub_node, entry);
+
+    while(token_begin < topic_end)
+    {
+        /* this has to called first, because it will change '/'
+         * into '\0' */
+        token_end = _set_backslash_null(token_begin);
+        subtree_node_t *cur_sub_node, *tmp_sub_node;
+
+        /* breadth first search */
+        while(!SLIST_EMPTY(&sub_node_head))
+        {
+            cur_sub_node = SLIST_FIRST(&sub_node_head);
+            HASH_FIND_STR(cur_sub_node, token_begin, tmp_sub_node);
+
+            if(tmp_sub_node){
+
+            }else{
+
+            }
+        }
+        token_begin = token_end;
+    }
 }
 
 static void tos_pubrec_handle(tosquitmo_message_t *msg)
