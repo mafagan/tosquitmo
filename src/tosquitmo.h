@@ -5,6 +5,16 @@
 #include <pthread.h>
 
 #include "types.h"
+#include "uthash.h"
+
+#define CONN_ACCEPT 0x00
+#define CONN_REFUSE_VERSION 0x01
+#define CONN_REFUSE_IDENTIFIER 0x02
+#define CONN_REFUSE_SERVER_UNAVAILABLE 0x03
+#define CONN_REFUSE_BAD_USR_OR_PWD 0x04
+#define CONN_REFUSE_NOT_AUTHORIZED 0x05
+
+#define TOS_MAX_TOPIC_IN_SUB    1024
 
 struct subtree_node;
 
@@ -24,8 +34,13 @@ typedef struct tosquitmo_message_queue{
 }tosquitmo_message_queue_t;
 
 
+struct client_id_struct{
+    char identifier[24];
+    UT_hash_handle hh;
+};
 typedef struct{
     struct subtree_node *sub_tree_root;
+    pthread_mutex_t sub_tree_lock;
     session_t *session_head;
     config_t *config;
     int listenfd;
@@ -34,8 +49,9 @@ typedef struct{
     session_t *session_end;
     tosquitmo_message_queue_t *msg_queue;
     int control_flag;
+    struct client_id_struct *id_table;
     pthread_mutex_t ctrl_flag_lock;
 }data_t;
 
-
+void _msg_destroy(tosquitmo_message_t *msg);
 #endif

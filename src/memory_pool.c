@@ -11,3 +11,8 @@ void* talloc(size_t size)
 {
     return malloc(size);
 }
+
+void tfree(void *ptr)
+{
+    free(ptr);
+}

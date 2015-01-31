@@ -86,12 +86,18 @@ session_t* new_session()
         pdata.session_head = n_session;
         pdata.session_end = n_session;
     }
+    n_session->is_connected = 0;
     n_session->recv_length = 0;
     n_session->to_process = HEADER;
     n_session->remaining_read = 0;
+    n_session->id_struct = NULL;
+    n_session->keepalive = 0;
     n_session->content = NULL;
     n_session->username = NULL;
     n_session->password = NULL;
+    n_session->will_topic = NULL;
+    n_session->will_message = NULL;
+    pthread_mutex_init(&n_session->session_lock, NULL);
     return n_session;
 }
 

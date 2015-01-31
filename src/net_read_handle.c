@@ -24,15 +24,20 @@ static void _clean_session(session_t *session)
 
 static int get_remaining_length(char *length_buf)
 {
-    //TODO
-    return 0;
+    int multiplier = 1;
+    int value = 0;
+    char *digit= length_buf - 1;
+
+    do{
+        ++ digit;
+        value += ((*digit) & 127) * multiplier;
+        multiplier *= 128;
+
+    }while((*digit & 128) !=0);
+
+    return value;
 }
 
-static char get_command(char byte)
-{
-    //TODO
-    return 0;
-}
 
 /*
  * network data recive and mqtt data packet handle
@@ -54,7 +59,7 @@ void socket_read_handle(struct ev_loop *reactor, ev_io *w, int events)
         }
 
         s_session->recv_length += 1;
-        s_session->command = get_command(s_session->header);
+        //s_session->command = get_command(s_session->header);
         s_session->to_process = REMAINING;
     }
 
