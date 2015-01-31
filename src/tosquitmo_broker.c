@@ -36,7 +36,7 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
     int qos_flag = (0x03 & (flags >> 3));
     int flag_flag = (0x01 & (flags >> 2));
     int clean_session_flag = (0x01 & (flags >> 1));
-
+	
     int keepalive = ((*(char*)(msg->content+10)) << 8 + (*(char*)(msg->content+11)));
     char *payload = msg->content + 12;
 
