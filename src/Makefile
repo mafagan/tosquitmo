@@ -3,7 +3,7 @@ CFLAGS = -fno-strict-aliasing -Wno-unused-result -Wall -O2 -g
 LIBS = -lev -lpthread
 OBJS = database.o memory_pool.o signal_handle.o \
 	   net_read_handle.o tosquitmo.o net.o config.o \
-	   thread_pool.o logging.o tosquitmo_broker.o
+	   thread_pool.o logging.o tos_broker.o
 
 tosquitmo: clean $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LIBS)
@@ -35,7 +35,7 @@ thread_pool.o: thread_pool.c thread_pool.h
 logging.o: logging.c logging.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-tosquitmo_broker.o: tosquitmo_broker.c tosquitmo_broker.h
+tosquitmo_broker.o: tos_broker.c tos_broker.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean
