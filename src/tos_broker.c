@@ -28,15 +28,19 @@ typedef struct tos_topic_token{
     struct tos_topic_token *next;
 }tos_topic_token_t;
 
+
+/* find the next '/' and change it to '\0',
+ * then return the nearest '\0' location to begin_ptr. */
+
 static char* _set_backslash_null(char *begin_ptr)
 {
-    return NULL;
-}
+    while(*begin_ptr != '\0' && *begin_ptr != '/')
+        ++ begin_ptr;
 
-static int _find_topic_level_end(char *str)
-{
+    if(*begin_ptr == '/')
+        *begin_ptr = '\0';
 
-    return 0;
+    return begin_ptr;
 }
 
 
@@ -44,6 +48,23 @@ static int is_usrname_password_valid(char *username, char *password)
 {
 
     return 0;
+}
+static void tos_publish_write(tosquitmo_message_t *msg, session_t *session)
+{
+    struct iovec iov[2];
+    char *var = msg->content;
+
+    int topic_len = (((*var) << 8) + (*(var+1))) & 0xff;
+    int var_len = topic_len + 2 + 2;
+    char *payload = var + var_len;
+    int payload_len = msg->content_length - var_len;
+
+    /* TODO remaining length */
+    iov[0].iov_base = var;
+    iov[0].iov_len = topic_len;
+    iov[1].iov_base = payload;
+    iov[1].iov_len = payload_len;
+    writev(session->.fd, iov, 2);
 }
 
 static void tos_suback_write(char *qosArray, int qos_len, char *msg_id, session_t *session)
@@ -352,7 +373,13 @@ static void tos_publish_handle(tosquitmo_message_t *msg)
             if(tmp_sub_node){
                 if(last_token_flag)
                 {
-                    //TODO write msg
+                    struct suber_node *suber_list_iterator = tmp_sub_node->suber_list;
+
+                    while(suber_list_iterator)
+                    {
+                        tos_publish_handle(msg, suber_list_iterator->session);
+                        suber_list_iterator = suber_list_iterator->next;
+                    }
                 }else
                 {
                     SLIST_INSERT_HEAD(&sub_node_tmp_list, tmp_sub_node, entry);
@@ -363,7 +390,13 @@ static void tos_publish_handle(tosquitmo_message_t *msg)
 
             if(tmp_sub_node)
             {
-                //TODO write message to suber
+                struct suber_node *tmp_suber_node = tmp_sub_node->suber_list;
+
+                while(tmp_suber_node)
+                {
+                    tos_publish_handle(msg, suber_list_iterator->session);
+                    suber_list_iterator = suber_list_iterator->next;
+                }
             }
 
             HASH_FIND_STR(cur_sub_node, "+", tmp_sub_node);
@@ -372,7 +405,14 @@ static void tos_publish_handle(tosquitmo_message_t *msg)
             {
                 if(last_token_flag)
                 {
-                    //TODO write msg
+                    struct suber_node *tmp_suber_node = tmp_sub_node->suber_list;
+
+                    while(tmp_suber_node)
+                    {
+                        tos_publish_handle(msg, suber_list_iterator->session);
+                        suber_list_iterator = suber_list_iterator->next;
+                    }
+
                 }else
                 {
                     SLIST_INSERT_HEAD(&sub_node_head, tmp_sub_node, entry);
