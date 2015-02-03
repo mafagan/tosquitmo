@@ -43,6 +43,15 @@ static char* _set_backslash_null(char *begin_ptr)
     return begin_ptr;
 }
 
+static int _find_topic_level_end(char *content, int begin_ptr)
+{
+    int end_ptr = begin_ptr;
+
+    while(*(content+end_ptr) != '\0' && *(content+end_ptr) != '/')
+        ++ end_ptr;
+
+    return end_ptr;
+}
 
 static int is_usrname_password_valid(char *username, char *password)
 {
@@ -64,7 +73,7 @@ static void tos_publish_write(tosquitmo_message_t *msg, session_t *session)
     iov[0].iov_len = topic_len;
     iov[1].iov_base = payload;
     iov[1].iov_len = payload_len;
-    writev(session->.fd, iov, 2);
+    writev(session->w.fd, iov, 2);
 }
 
 static void tos_suback_write(char *qosArray, int qos_len, char *msg_id, session_t *session)
@@ -244,7 +253,7 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
             }
 
             /* topic level will be seperated in  [~) mode]*/
-            end_ptr = _find_topic_level_end(var+begin_ptr);
+            end_ptr = _find_topic_level_end(var, begin_ptr);
 
             char *cur_level = (char*)talloc(end_ptr - begin_ptr + 1);
 
@@ -377,7 +386,7 @@ static void tos_publish_handle(tosquitmo_message_t *msg)
 
                     while(suber_list_iterator)
                     {
-                        tos_publish_handle(msg, suber_list_iterator->session);
+                        tos_publish_write(msg, suber_list_iterator->session);
                         suber_list_iterator = suber_list_iterator->next;
                     }
                 }else
@@ -390,11 +399,11 @@ static void tos_publish_handle(tosquitmo_message_t *msg)
 
             if(tmp_sub_node)
             {
-                struct suber_node *tmp_suber_node = tmp_sub_node->suber_list;
+                struct suber_node *suber_list_iterator = tmp_sub_node->suber_list;
 
-                while(tmp_suber_node)
+                while(suber_list_iterator)
                 {
-                    tos_publish_handle(msg, suber_list_iterator->session);
+                    tos_publish_write(msg, suber_list_iterator->session);
                     suber_list_iterator = suber_list_iterator->next;
                 }
             }
@@ -405,11 +414,11 @@ static void tos_publish_handle(tosquitmo_message_t *msg)
             {
                 if(last_token_flag)
                 {
-                    struct suber_node *tmp_suber_node = tmp_sub_node->suber_list;
+                    struct suber_node *suber_list_iterator = tmp_sub_node->suber_list;
 
-                    while(tmp_suber_node)
+                    while(suber_list_iterator)
                     {
-                        tos_publish_handle(msg, suber_list_iterator->session);
+                        tos_publish_write(msg, suber_list_iterator->session);
                         suber_list_iterator = suber_list_iterator->next;
                     }
 
