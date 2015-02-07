@@ -8,7 +8,7 @@
 #include "logging.h"
 #include "memory_pool.h"
 #include "database.h"
-#include "tosquitmo_broker.h"
+#include "tos_broker.h"
 
 extern data_t pdata;
 

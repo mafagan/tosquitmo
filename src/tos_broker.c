@@ -13,7 +13,7 @@
 /* for slink-list */
 #include <sys/queue.h>
 
-#include "tosquitmo_broker.h"
+#include "tos_broker.h"
 #include "database.h"
 #include "tosquitmo.h"
 #include "logging.h"
@@ -28,22 +28,52 @@ typedef struct tos_topic_token{
     struct tos_topic_token *next;
 }tos_topic_token_t;
 
+
+/* find the next '/' and change it to '\0',
+ * then return the nearest '\0' location to begin_ptr. */
+
 static char* _set_backslash_null(char *begin_ptr)
 {
+    while(*begin_ptr != '\0' && *begin_ptr != '/')
+        ++ begin_ptr;
 
+    if(*begin_ptr == '/')
+        *begin_ptr = '\0';
+
+    return begin_ptr;
 }
 
-static int _find_topic_level_end(char *str)
+static int _find_topic_level_end(char *content, int begin_ptr)
 {
+    int end_ptr = begin_ptr;
 
-    return 0;
+    while(*(content+end_ptr) != '\0' && *(content+end_ptr) != '/')
+        ++ end_ptr;
+
+    return end_ptr;
 }
-
 
 static int is_usrname_password_valid(char *username, char *password)
 {
 
     return 0;
+}
+static void tos_publish_write(tosquitmo_message_t *msg, session_t *session)
+{
+    struct iovec iov[2];
+    char *var = msg->content;
+
+    int topic_len = (((*var) << 8) + (*(var+1))) & 0xff;
+    int var_len = topic_len + 2 + 2;
+    char *payload = var + var_len;
+    int payload_len = msg->content_length - var_len;
+
+    /* TODO remaining length */
+    iov[0].iov_base = var;
+    iov[0].iov_len = topic_len;
+    iov[1].iov_base = payload;
+    iov[1].iov_len = payload_len;
+    writev(session->w.fd, iov, 2);
 }
 
 static void tos_suback_write(char *qosArray, int qos_len, char *msg_id, session_t *session)
@@ -176,8 +206,8 @@ static void tos_connect_handle(tosquitmo_message_t *msg)
 
 static void tos_subscribe_handle(tosquitmo_message_t *msg)
 {
-    char *cur = msg->content;
-    int dup = ((msg->header) >> 3) & 0x01;
+    //char *cur = msg->content;
+    //int dup = ((msg->header) >> 3) & 0x01;
     int qos = ((msg->header) >> 1) & 0x03;
     int msg_length = msg->content_length;
     int byte_readed = 0;
@@ -223,7 +253,7 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
             }
 
             /* topic level will be seperated in  [~) mode]*/
-            end_ptr = _find_topic_level_end(var+begin_ptr);
+            end_ptr = _find_topic_level_end(var, begin_ptr);
 
             char *cur_level = (char*)talloc(end_ptr - begin_ptr + 1);
 
@@ -287,9 +317,10 @@ static void tos_subscribe_handle(tosquitmo_message_t *msg)
 
 static void tos_publish_handle(tosquitmo_message_t *msg)
 {
-    char header = msg->header;
-    int pub_qos = (header >> 1) & 0x03;
-    int dup = (header >> 3) & 0x01;
+    //char header = msg->header;
+
+    //int pub_qos = (header >> 1) & 0x03;
+    //int dup = (header >> 3) & 0x01;
 
     char *var = msg->content;
 
@@ -317,25 +348,97 @@ static void tos_publish_handle(tosquitmo_message_t *msg)
     SLIST_INIT(&sub_node_head);
     SLIST_INSERT_HEAD(&sub_node_head, sub_node, entry);
 
+
+    SLIST_HEAD(list_tmp_head_t, subtree_node) sub_node_tmp_list;
+    SLIST_INIT(&sub_node_tmp_list);
+
+    int last_token_flag = 0;
+
     while(token_begin < topic_end)
     {
         /* this has to called first, because it will change '/'
          * into '\0' */
         token_end = _set_backslash_null(token_begin);
+
+        /* check if this is the last token */
+        if(token_end >= topic_end)
+        {
+            last_token_flag = 1;
+        }else
+        {
+            last_token_flag = 0;
+        }
+
         subtree_node_t *cur_sub_node, *tmp_sub_node;
+
 
         /* breadth first search */
         while(!SLIST_EMPTY(&sub_node_head))
         {
+
             cur_sub_node = SLIST_FIRST(&sub_node_head);
             HASH_FIND_STR(cur_sub_node, token_begin, tmp_sub_node);
 
             if(tmp_sub_node){
+                if(last_token_flag)
+                {
+                    struct suber_node *suber_list_iterator = tmp_sub_node->suber_list;
 
-            }else{
-
+                    while(suber_list_iterator)
+                    {
+                        tos_publish_write(msg, suber_list_iterator->session);
+                        suber_list_iterator = suber_list_iterator->next;
+                    }
+                }else
+                {
+                    SLIST_INSERT_HEAD(&sub_node_tmp_list, tmp_sub_node, entry);
+                }
             }
+
+            HASH_FIND_STR(cur_sub_node, "#", tmp_sub_node);
+
+            if(tmp_sub_node)
+            {
+                struct suber_node *suber_list_iterator = tmp_sub_node->suber_list;
+
+                while(suber_list_iterator)
+                {
+                    tos_publish_write(msg, suber_list_iterator->session);
+                    suber_list_iterator = suber_list_iterator->next;
+                }
+            }
+
+            HASH_FIND_STR(cur_sub_node, "+", tmp_sub_node);
+
+            if(tmp_sub_node)
+            {
+                if(last_token_flag)
+                {
+                    struct suber_node *suber_list_iterator = tmp_sub_node->suber_list;
+
+                    while(suber_list_iterator)
+                    {
+                        tos_publish_write(msg, suber_list_iterator->session);
+                        suber_list_iterator = suber_list_iterator->next;
+                    }
+
+                }else
+                {
+                    SLIST_INSERT_HEAD(&sub_node_head, tmp_sub_node, entry);
+
+                }
+            }
+
+            SLIST_REMOVE(&sub_node_head, cur_sub_node, subtree_node, entry);
         }
+
+        while(!SLIST_EMPTY(&sub_node_tmp_list))
+        {
+            tmp_sub_node = SLIST_FIRST(&sub_node_tmp_list);
+            SLIST_INSERT_HEAD(&sub_node_head, tmp_sub_node, entry);
+            SLIST_REMOVE(&sub_node_tmp_list, tmp_sub_node, subtree_node, entry);
+        }
+
         token_begin = token_end;
     }
 }
