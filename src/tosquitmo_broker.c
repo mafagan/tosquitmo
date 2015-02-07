@@ -60,7 +60,7 @@ static void tos_suback_write(char *qosArray, int qos_len, char *msg_id, session_
     iov[3].iov_base = qosArray;
     iov[3].iov_len = qos_len;
     writev(session->w.fd, iov, 4);
-
+	
 }
 
 static void tos_connack_write(int ret, session_t *session)
