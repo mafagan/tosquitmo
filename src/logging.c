@@ -9,7 +9,6 @@
 
 void log_init()
 {
-
     return;
 }
 
@@ -33,15 +32,11 @@ void logging(const char *logfile, int logline, int priority, const char *fmt, ..
     }
 
     int trans_len;
-    if(priority & LOGGING_INFO){
-        trans_len = sprintf(buf+curlength, " INFO: ");
-    }else if(priority & LOGGING_DEBUG){
-        trans_len = sprintf(buf+curlength, " DEBUG: ");
-    }else if(priority & LOGGING_WARN){
-        trans_len = sprintf(buf+curlength, " WARN: ");
-    }else{
-        trans_len = sprintf(buf+curlength, " ERROR: ");
-    }
+    
+    if(priority & LOGGING_INFO) trans_len = sprintf(buf+curlength, " INFO: ");
+    else if(priority & LOGGING_DEBUG) trans_len = sprintf(buf+curlength, " DEBUG: ");
+    else if(priority & LOGGING_WARN) trans_len = sprintf(buf+curlength, " WARN: ");
+    else trans_len = sprintf(buf+curlength, " ERROR: ");
 
     assert(trans_len>0);
     curlength += trans_len;

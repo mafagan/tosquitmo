@@ -25,6 +25,7 @@ static void data_init(data_t *pdata)
     pdata->control_flag = 1;
     pdata->id_table = NULL;
     pthread_mutex_init(&pdata->ctrl_flag_lock, NULL);
+
     config_init(pdata);
 
     memory_pool_init(pdata);
